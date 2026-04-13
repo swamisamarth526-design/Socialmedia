@@ -3,10 +3,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 const SocketServer = require('./socketServer');
 const corsOptions = {
-  Credential: 'true',
-  
+  credentials: true,
+  origin: true,
 };
 
 
@@ -40,6 +41,12 @@ app.use('/api', require('./routes/notifyRouter'));
 app.use('/api', require('./routes/messageRouter'));
 //#endregion
 
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client', 'build')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
+  });
+}
 
 const URI = process.env.MONGODB_URL || process.env.MONGODB_URL_test || process.env.MONGO_URI;
 
