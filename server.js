@@ -41,16 +41,22 @@ app.use('/api', require('./routes/messageRouter'));
 //#endregion
 
 
-const URI = process.env.MONGODB_URL;
+const URI = process.env.MONGODB_URL || process.env.MONGODB_URL_test || process.env.MONGO_URI;
+
+if (!URI) {
+  console.error('Missing MongoDB connection string. Set MONGODB_URL, MONGODB_URL_test, or MONGO_URI in your environment.');
+  process.exit(1);
+}
+
 mongoose.connect(URI, {
-    useCreateIndex:true,
-    useFindAndModify:false,
     useNewUrlParser:true,
     useUnifiedTopology:true
-}, err => {
-    if(err) throw err;
+}).then(() => {
     console.log("Database Connected!!")
-})
+}).catch(err => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+});
 
 const port = process.env.PORT || 8080;
 http.listen(port, () => {
